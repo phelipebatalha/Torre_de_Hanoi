@@ -17,6 +17,11 @@
         .tower
         {
             position: relative;
+            cursor:pointer;
+        }
+        .tower:hover
+        {
+            background: #99f;
         }
         .tower::after
         {
@@ -24,7 +29,7 @@
             display: block;
             position: absolute;
             width: 20px;
-            height: 200px;
+            height: 400px;
             bottom:0;
             left:90px;
             background:#600;
@@ -33,13 +38,15 @@
         .disk
         {
             position: absolute;
-            background: red;
+            background: yellow;
             height: 35px;
             width: 180px;
             border: solid 3px black;
             border-radius: 15px;
             margin-left: 10px;
             z-index: 2;
+            transition: left .2s, bottom .2s .2s;  /* add animation */ 
+            pointer-events: none;
         }
         .d1{width: 60px; margin-left: 70px;}
         .d2{width: 90px; margin-left: 55px;}
@@ -53,19 +60,91 @@
         .p3{ bottom:70px;}
         .p4{ bottom:105px;}
         .p5{ bottom:140px;}
+        .p0{ bottom:350px;} /* ponto base */
 
     </style>
 </head>
 <body>
     <div class="torreHanoi">
-        <div class="disk d1 t1 p5"></div>
-        <div class="disk d2 t1 p4"></div>
-        <div class="disk d3 t1 p3"></div>
-        <div class="disk d4 t1 p2"></div>
-        <div class="disk d5 t1 p1"></div>
-        <div class="tower"></div>
-        <div class="tower"></div>
-        <div class="tower"></div>
+        <div class="disk d1 "></div>
+        <div class="disk d2 "></div>
+        <div class="disk d5 "></div>
+        <div class="disk d3 "></div>
+        <div class="disk d4 "></div>
+        <div class="tower" onclick="clicktower(0)"></div>
+        <div class="tower" onclick="clicktower(1)"></div>
+        <div class="tower" onclick="clicktower(2)"></div>
     </div>
+    <script>
+        let towers = [[5,4,3,2,1],[],[]]
+        let positions = ['p1', 'p2', 'p3', 'p4', 'p5', 'p0', 
+                        't1', 't2', 't3', ]
+        let movements = []
+        
+        function render()
+        {
+            towers.forEach((tower, towerid) => {
+                tower.forEach((disk, position) => {
+                    let d=document.querySelector('.d' + disk)
+                    positions.forEach(position => { 
+                        d.classList.remove(position)
+                    })
+                    d.classList.add('t' + (towerid+1))
+                    d.classList.add('p' + (position+1))
+                })
+            })
+        }
+
+        function move(fromtower, totower)
+        {
+            if(!towers[fromtower].length)return
+            let disk = towers[fromtower].pop() /*  */
+            if(towers[totower].length){
+                if(towers[totower][towers[totower].length-1]<disk){
+                    return towers[fromtower].push(disk)
+                }
+            }
+            let d=document.querySelector('.d' + disk)
+            d.classList.add('p0') /* Manda para posicao base */
+            towers[totower].push(disk) /* Envia para a torre */
+            setTimeout(render,400) /* Chama a funcao dps de .4 sec */
+        }
+
+        function clicktower(n)
+        {
+            if( movements.length && movements[0].length == 1 )
+            {
+                movements[0].push(n)
+            }
+            else
+            {
+                movements.unshift([n])
+            }
+        }
+
+        setInterval(() =>{
+            if(movements.length && movements[movements.length - 1].length == 2)
+            {
+                let m=movements.pop()
+                move(m[0], m[1])            
+            }
+        },600)
+
+        render()
+        
+        function resolve(size,fromtower,totower)
+        {
+            if(size == 1)
+            {
+                return movements.unshift([fromtower,totower])
+            }
+            let other = 3-fromtower-totower
+            resolve(size-1,fromtower,other)
+            movements.unshift([fromtower,totower])
+            resolve(size-1, other, totower)
+        }
+
+        setTimeout(()=>{resolve(5,0,1)},2000)
+    </script>
 </body>
 </html>

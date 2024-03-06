@@ -11,7 +11,7 @@
             grid-template-columns: 1fr 1fr 1fr;
             height: 450px;
             width: 600px;
-            background: #ccf;
+            background: rgb(1, 145, 104);
             position: relative;
         }
         .tower
@@ -21,7 +21,7 @@
         }
         .tower:hover
         {
-            background: #99f;
+            background: rgb(1, 144, 94);
         }
         .tower::after
         {
@@ -32,7 +32,7 @@
             height: 400px;
             bottom:0;
             left:90px;
-            background:#600;
+            background:rgb(91, 0, 0);
             border-radius: 10px 10px 0 0;
         }
         .disk
@@ -75,22 +75,35 @@
         <div class="tower" onclick="clicktower(1)"></div>
         <div class="tower" onclick="clicktower(2)"></div>
     </div>
+    <!-- reset -->
+    <button onclick="resetGame()">Reiniciar</button>
+
+    <!-- counter -->
+    <p>Movimentos efetuados: <span id="moveCount">0</span></p>
+
+    <!-- resolver -->
+    <button onclick="resolve(5,0,1)">Resolver Automaticamente</button>
+
     <script>
-        let towers = [[5,4,3,2,1],[],[]]
+        let disks = [5,4,3,2,1]
+        let towers = [disks,[],[]]
         let positions = ['p1', 'p2', 'p3', 'p4', 'p5', 'p0', 
                         't1', 't2', 't3', ]
-        let movements = []
+        let movements = []/* lista de movimentos */
+        let moveCounter = 0;
+        let posicaoInicial = [] /* guardar pos */
         
+        updateMoveCounter() /* atualiza meu contador de movimentos */
         function render()
         {
-            towers.forEach((tower, towerid) => {
-                tower.forEach((disk, position) => {
-                    let d=document.querySelector('.d' + disk)
+            towers.forEach((tower, towerid) => { /* cada torre no array towers, faz callback */
+                tower.forEach((disk, position) => { /* cada disco na torre, faz callback */
+                    let d=document.querySelector('.d' + disk) /* d disco em questao */
                     positions.forEach(position => { 
-                        d.classList.remove(position)
+                        d.classList.remove(position)    /* remove para atualizar */
                     })
-                    d.classList.add('t' + (towerid+1))
-                    d.classList.add('p' + (position+1))
+                    d.classList.add('t' + (towerid+1))  /* adiciona classe ao disco */
+                    d.classList.add('p' + (position+1)) /* adiciona classe pos ao disco */
                 })
             })
         }
@@ -98,19 +111,21 @@
         function move(fromtower, totower)
         {
             if(!towers[fromtower].length)return
-            let disk = towers[fromtower].pop() /*  */
+            let disk = towers[fromtower].pop() /* disco vai armazenar ultimo elemento do array Towers */
             if(towers[totower].length){
                 if(towers[totower][towers[totower].length-1]<disk){
                     return towers[fromtower].push(disk)
                 }
             }
+            moveCounter +=1;
+            updateMoveCounter()
             let d=document.querySelector('.d' + disk)
-            d.classList.add('p0') /* Manda para posicao base */
-            towers[totower].push(disk) /* Envia para a torre */
-            setTimeout(render,400) /* Chama a funcao dps de .4 sec */
+            d.classList.add('p0') /* manda para posicao base */
+            towers[totower].push(disk) /* envia para a torre */
+            setTimeout(render,400) /* chama a funcao dps de .4 sec */
         }
 
-        function clicktower(n)
+        function clicktower(n) /* Clicker */
         {
             if( movements.length && movements[0].length == 1 )
             {
@@ -132,7 +147,7 @@
 
         render()
         
-        function resolve(size,fromtower,totower)
+        function resolve(size,fromtower,totower)    /* Forma padrao pra resolução recursiva parecida com a disponibilizada em python */
         {
             if(size == 1)
             {
@@ -144,7 +159,21 @@
             resolve(size-1, other, totower)
         }
 
-        setTimeout(()=>{resolve(5,0,1)},2000)
+        function changeDiskCount(value) {
+            diskCount = parseInt(value);
+            resetGame();
+        }
+
+        function resetGame()
+        {
+            location.reload();
+        }
+
+        function updateMoveCounter() {
+            document.getElementById('moveCount').innerText = moveCounter;
+        } /* Faz a interlocucao com a variavel e o texto */
+
+        /* setTimeout(()=>{resolve(5,0,1)},2000) */
     </script>
 </body>
 </html>
